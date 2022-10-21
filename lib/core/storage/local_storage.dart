@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocalStorage {
+
   /// Check If Token Exist
   static Future<bool?> checkToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -41,17 +42,5 @@ class LocalStorage {
   static removeUserDetails() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.remove("user");
-  }
-
-  /// Set User Credentials
-  static setUserCredentials(String creds) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString("creds", creds);
-  }
-
-  /// Get User Credentials
-  static getCredentials() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString("creds");
   }
 }

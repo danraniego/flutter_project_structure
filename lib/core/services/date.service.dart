@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-class DateHelper {
-  
+class DateService {
+
   /// Date Formats
   static const String defaultFormat = "MMM. d, yyyy hh:mm a";
   static const String dateWithSpace = "MMM d, yyyy";
@@ -87,7 +87,7 @@ class DateHelper {
   /// Convert Date To Time Ago
   static convertToTimeAgo(String date) {
     final timeAgo = DateTime.now()
-        .difference(DateHelper.convertDateToLocal(date.toString(), ""));
+        .difference(DateService.convertDateToLocal(date.toString(), ""));
     return timeago.format(DateTime.now().subtract(timeAgo));
   }
 

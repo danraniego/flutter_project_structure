@@ -4,7 +4,7 @@ import 'package:path/path.dart';
 
 class QueryBuilder {
 
-  // Initialize Database
+  /// Initialize Database
   initDatabase() async {
     String databasesPath = await getDatabasesPath();
     String dbPath = join(databasesPath, dotenv.env['DB_NAME']);
@@ -13,7 +13,7 @@ class QueryBuilder {
     return database;
   }
 
-  // Create Database
+  /// Create Database
   createDatabase(Database database, int version) async {
     await database.execute("CREATE TABLE post ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT,"

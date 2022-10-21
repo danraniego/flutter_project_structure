@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'package:mvc/core/components/progress_dialog.dart';
-import 'package:mvc/core/http_service/api_response.model.dart';
-import 'package:mvc/services/auth.service.dart';
+import 'package:mvc/core/components/dialog/progress_dialog.dart';
+import 'package:mvc/core/models/api_response.model.dart';
+import '../../data/services/auth.service.dart';
 
 class HomeController {
 

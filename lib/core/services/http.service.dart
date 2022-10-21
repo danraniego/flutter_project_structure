@@ -6,23 +6,22 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:http/http.dart' as http;
 import 'package:mime/mime.dart';
-import 'package:mvc/core/storage/local_storage.dart';
 import '../components/toaster.dart';
-import 'api_response.model.dart';
-import 'file.model.ts.dart';
+import '../models/api_response.model.dart';
+import '../models/file.model.dart';
 
 class HttpService {
   final Map<String, String> _headers = {
     "Accept": "application/json",
-    "Content-type": "application/json"
+    "Content-type": "application/json",
+    "Authorization": ""
   };
-  static const String errorUndefined = "Something went wrong. Please try again.";
 
   final String _apiUrl = dotenv.env['API_URL'] ?? '';
 
   HttpService();
 
-  // Return Error
+  /// Return Error
   errorRequest(e) {
     Toaster.error(e.toString());
     return ApiResponse(
@@ -32,45 +31,25 @@ class HttpService {
     );
   }
 
-  // Validate response
-  validateResponse(http.Response response) {
+  /// Map Response
+  mapResponse(http.Response response) {
     Map body = json.decode(response.body);
+    bool success = (response.statusCode != 200 && response.statusCode != 202
+        && response.statusCode != 201);
 
-    ApiResponse apiResponse = ApiResponse(
-        success: false,
+    return ApiResponse(
+        success: success,
         message: body["message"] ?? "",
         data: body["data"]
     );
-
-    if (response.statusCode != 200 &&
-        response.statusCode != 202 &&
-        response.statusCode != 201) {
-
-      if (body["message"] != null) {
-        Toaster.error(body["message"]);
-      }
-      return apiResponse;
-    } else {
-      apiResponse.success = true;
-      return apiResponse;
-    }
-  }
-
-  setTokenHeader() async {
-    String? token = await LocalStorage.getToken();
-    if (token != null) {
-      _headers["Authorization"] = "Bearer $token";
-    }
   }
 
   /// HTTP POST
   Future<ApiResponse> post(String uri, Map body) {
-    setTokenHeader();
-
     return http
         .post(Uri.parse(_apiUrl + uri), body: json.encode(body), headers: _headers)
         .then((http.Response response) {
-      return validateResponse(response);
+      return mapResponse(response);
     }, onError: (e) {
       return errorRequest(e);
     });
@@ -81,7 +60,7 @@ class HttpService {
     return http
         .put(Uri.parse(_apiUrl + uri), body: json.encode(parameters), headers: _headers)
         .then((http.Response response) {
-      return validateResponse(response);
+      return mapResponse(response);
     }, onError: (e) {
       return errorRequest(e);
     });
@@ -89,12 +68,10 @@ class HttpService {
 
   /// HTTP PATCH
   Future<ApiResponse> patch(String uri, Map parameters) async {
-    setTokenHeader();
     return http
-        .patch(Uri.parse(_apiUrl + uri),
-        body: json.encode(parameters), headers: _headers)
+        .patch(Uri.parse(_apiUrl + uri), body: json.encode(parameters), headers: _headers)
         .then((http.Response response) {
-      return validateResponse(response);
+      return mapResponse(response);
     }, onError: (e) {
       return errorRequest(e);
     });
@@ -102,7 +79,6 @@ class HttpService {
 
   /// HTTP GET
   Future<ApiResponse> get(String uri, Map parameters, [bool thirdParty = false]) async {
-    setTokenHeader();
     if (parameters.isNotEmpty) {
       var length = parameters.keys.length;
       var counter = 1;
@@ -119,8 +95,9 @@ class HttpService {
 
     var url = (!thirdParty) ? _apiUrl + uri : uri;
 
-    return http.get(Uri.parse(url), headers: _headers).then((http.Response response) {
-      return validateResponse(response);
+    return http.get(Uri.parse(url), headers: _headers)
+        .then((http.Response response) {
+      return mapResponse(response);
     }, onError: (e) {
       return errorRequest(e);
     });
@@ -128,11 +105,10 @@ class HttpService {
 
   /// HTTP DELETE
   Future<ApiResponse> delete(String uri, Map parameters) async {
-    setTokenHeader();
     return http
         .delete(Uri.parse(_apiUrl + uri), body: json.encode(parameters), headers: _headers)
         .then((http.Response response) {
-      return validateResponse(response);
+      return mapResponse(response);
     }, onError: (e) {
       return errorRequest(e);
     });
@@ -140,8 +116,6 @@ class HttpService {
 
   /// HTTP Upload Single File
   Future<ApiResponse> upload(String uri, Map body, File file, String paramName) async {
-    setTokenHeader();
-
     var parsedUri = Uri.parse(_apiUrl + uri);
     var request = http.MultipartRequest("POST", parsedUri);
 
@@ -167,7 +141,7 @@ class HttpService {
 
     return request.send().then((result) {
       return http.Response.fromStream(result).then((response) {
-        return validateResponse(response);
+        return mapResponse(response);
       }, onError: (e) {
         return errorRequest(e);
       });
@@ -176,8 +150,6 @@ class HttpService {
 
   /// HTTP Upload Multiple Files
   Future<ApiResponse> uploadMultiple(String uri, Map body, List<FileModel> files) async {
-    setTokenHeader();
-
     var parsedUri = Uri.parse(_apiUrl + uri);
     var request = http.MultipartRequest("POST", parsedUri);
 
@@ -205,7 +177,7 @@ class HttpService {
 
     return request.send().then((result) {
       return http.Response.fromStream(result).then((response) {
-        return validateResponse(response);
+        return mapResponse(response);
       }, onError: (e) {
         return errorRequest(e);
       });

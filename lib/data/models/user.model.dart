@@ -1,4 +1,4 @@
-import 'package:mvc/models/dto/user.dto.dart';
+import 'dto/user.dto.dart';
 
 class User implements UserDto {
   String? id;

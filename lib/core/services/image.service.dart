@@ -1,6 +1,6 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-class ImageHelper {
+class ImageService {
 
   /// Check Image Link if valid
   static checkImage(String? imageLink) {

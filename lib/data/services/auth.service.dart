@@ -1,4 +1,4 @@
-import 'package:mvc/core/http_service/http.service.dart';
+import '../../core/services/http.service.dart';
 
 class AuthService extends HttpService {
 
